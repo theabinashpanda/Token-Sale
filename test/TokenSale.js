@@ -78,6 +78,48 @@ describe("ERC20Token", function() {
 
     });
 
+    describe("transfer Function",function() {
+        
+        it("Sucessfully transfer tokens to other address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount] = await ethers.getSigners();
+            // Transfer tokens from owner to otherAccount
+            await ERC20TokenInstance.transfer(otherAccount.address, 100);
+            // Check balances after transfer
+            const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
+            const otherAccountBalance = await ERC20TokenInstance.balanceOf(otherAccount.address);
+            // Assertions
+            expect(ownerBalance).to.equal(999900); 
+            expect(otherAccountBalance).to.equal(100); 
+        });
+    
+        it("Should fail to transfer zero tokens", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner,otherAccount] = await ethers.getSigners();
+            // Expecting revert when transferring zero tokens
+            await expect(ERC20TokenInstance.transfer(otherAccount, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+        });
+    
+        it("Should fail to transfer tokens to self", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Expecting revert when transferring to self
+            await expect(ERC20TokenInstance.transfer(owner, 10)).to.be.revertedWith("ERC20: cannot transfer to self");
+        });
+    
+        it("Should fail to transfer tokens to zero address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Expecting revert when transferring to the zero address
+            await expect(ERC20TokenInstance.transfer("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: transfer to the zero address");
+        });
+    
+    });
+
 });
 
 // Describe block for owner functionalities
