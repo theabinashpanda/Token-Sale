@@ -11,7 +11,72 @@ describe("ERC20Token", function() {
             await expect(ERC20Token.deploy("Token", "TKN")).not.to.be.reverted;
         });
 
-    });   
+    });
+
+    describe("transferFrom Function",function () {
+
+        //  case to verify if transferFrom functionalities work
+        it("Sucessfully transfer tokens to other address on behalf of owner", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
+            // Approve transfer from owner to otherAccount
+            await ERC20TokenInstance.approve(otherAccount.address, 50000);
+            // Perform transferFrom
+            await ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,otherAccount2.address, 1000);
+            // Check balances after transferFrom
+            const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
+            const otherAccount2Balance = await ERC20TokenInstance.balanceOf(otherAccount2.address);
+            // Assertions
+            expect(ownerBalance).to.equal(999000);
+            expect(otherAccount2Balance).to.equal(1000); 
+        });
+
+        it("Should fail to transfer tokens to other address on behalf of zero address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount] = await ethers.getSigners();
+            // Attempt to transfer tokens from the zero address
+            await expect(ERC20TokenInstance.transferFrom("0x0000000000000000000000000000000000000000", otherAccount.address, 10)).to.be.revertedWith("ERC20: transfer from the zero address");
+        });
+
+        it("Should fail to transfer tokens to zero address on the behalf of owner", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.transferFrom(otherAccount.address,"0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: transfer to the zero address");
+        });
+
+        //  case to verify failure when transferring more tokens than approved
+        it("Should fail to transfer more tokens than approved", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
+            // Approve transfer from owner to otherAccount
+            await ERC20TokenInstance.approve(otherAccount.address, 50);
+            // Expecting revert when transferring more than approved
+            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address, otherAccount2.address, 100)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        });
+
+        it("Should fail to transfer zero tokens on behalf of owner", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
+            // Approve transfer from owner to otherAccount
+            await ERC20TokenInstance.approve(otherAccount.address, 50);
+            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,otherAccount2.address, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+        });
+
+        it("Should fail to transfer tokens to owner on behalf of owner", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
+            // Approve transfer from owner to otherAccount
+            await ERC20TokenInstance.approve(otherAccount.address, 50);
+            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,owner.address, 10)).to.be.revertedWith("ERC20: cannot transfer to self");
+        });
+
+    });
 
 });
 
