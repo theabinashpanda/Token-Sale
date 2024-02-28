@@ -163,6 +163,65 @@ describe("ERC20Token", function() {
     
     });
 
+    describe("getter Functions",function () {
+
+        it("Token name should be Token", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const name = await ERC20TokenInstance.name();
+            // Assertions
+            expect(name).to.equal("Token");
+        });
+    
+        it("Token symbol should be TKN", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const symbol = await ERC20TokenInstance.symbol();
+            // Assertions
+            expect(symbol).to.equal("TKN"); 
+        });
+    
+        it("Total Supply should be 1000000", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const totalSupply = await ERC20TokenInstance.totalSupply();
+            // Assertions
+            expect(totalSupply).to.equal(1000000);
+        });
+    
+        //  case to verify if transfer of tokens is possible
+        it("Balance of other address should be 10", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");100
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount] = await ethers.getSigners();
+            // Transfer tokens from owner to otherAccount
+            await ERC20TokenInstance.transfer(otherAccount.address, 10);
+            // Check balance after transfer
+            const otherAccountBalance = await ERC20TokenInstance.balanceOf(otherAccount.address);
+            // Assertions
+            expect(otherAccountBalance).to.equal(10); 
+        });
+    
+        it("Allowance of other address should be 50", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner,otherAccount] = await ethers.getSigners();
+            await ERC20TokenInstance.approve(otherAccount, 50);
+            const allowance = await ERC20TokenInstance.allowance(owner,otherAccount);
+            // Assertions
+            expect(allowance).to.equal(50);
+        }); 
+    
+        it("Decimals should be 18", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const decimals = await ERC20TokenInstance.decimals();
+            // Assertions
+            expect(decimals).to.equal(14); 
+        });
+    
+    });
+
 });
 
 // Describe block for owner functionalities
