@@ -120,6 +120,49 @@ describe("ERC20Token", function() {
     
     });
 
+    describe("approve Function",function () {
+        it("Successfully approve tokens to other address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner,otherAccount] = await ethers.getSigners();
+            await ERC20TokenInstance.approve(otherAccount, 50);
+            const allowance = await ERC20TokenInstance.allowance(owner,otherAccount);
+            // Assertions
+            expect(allowance).to.equal(50);
+        });    
+    
+        it("Should fail to approve zero tokens", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner,otherAccount] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.approve(otherAccount, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+        });
+    
+        it("Should fail to approve tokens to self", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Expecting revert when approving to self.
+            await expect(ERC20TokenInstance.approve(owner, 50)).to.be.revertedWith("ERC20: cannot approve self");
+        });
+    
+        it("Should fail to approve tokens to zero address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Attempt to approve to the zero address
+            await expect(ERC20TokenInstance.approve("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: approve to the zero address");
+        });
+    
+        it("Should fail to approve excess tokens", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner,otherAccount] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.approve(otherAccount, 10000000)).to.be.revertedWith("ERC20: cannot approve excess tokens");
+        });
+    
+    });
+
 });
 
 // Describe block for owner functionalities
