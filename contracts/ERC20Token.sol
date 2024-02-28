@@ -55,7 +55,6 @@ contract ERC20Token is IERC20Token,Owner {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-        // require(_balances[sender] >= amount, "ERC20: transfer amount exceeds balance");
         
         _transfer(sender, recipient, amount);
         _approve(sender, msg.sender, currentAllowance - amount);
