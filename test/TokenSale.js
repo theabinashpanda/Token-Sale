@@ -1,6 +1,20 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+// Describe block for ERC20 token functionalities
+describe("ERC20Token", function() {
+
+    describe("constructor",function() {
+
+        it("Sucessfully initialize the contract", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            await expect(ERC20Token.deploy("Token", "TKN")).not.to.be.reverted;
+        });
+
+    });   
+
+});
+
 // Describe block for owner functionalities
 describe("Ownable",function () {
 
