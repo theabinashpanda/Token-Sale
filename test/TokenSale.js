@@ -212,7 +212,7 @@ describe("ERC20Token", function() {
             expect(allowance).to.equal(50);
         }); 
     
-        it("Decimals should be 18", async () => {
+        it("Decimals should be 14", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const decimals = await ERC20TokenInstance.decimals();
