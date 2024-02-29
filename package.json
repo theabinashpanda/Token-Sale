@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "ethers": "^6.11.1",
     "solidity-coverage": "^0.8.8"
   }
 }
