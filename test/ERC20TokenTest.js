@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+let zeroAddress = "0x0000000000000000000000000000000000000000";
 // Describe block for ERC20 token functionalities
 describe("ERC20Token", function() {
 
@@ -19,14 +20,14 @@ describe("ERC20Token", function() {
         it("Should successfully transfer tokens to other address on behalf of owner", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
-            // Approve transfer from owner to otherAccount
-            await ERC20TokenInstance.approve(otherAccount.address, 50000);
+            const [owner, account1,account2] = await ethers.getSigners();
+            // Approve transfer from owner to account1
+            await ERC20TokenInstance.approve(account1.address, 50000);
             // Perform transferFrom
-            await ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,otherAccount2.address, 1000);
+            await ERC20TokenInstance.connect(account1).transferFrom(owner.address,account2.address, 1000);
             // Check balances after transferFrom
             const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
-            const otherAccount2Balance = await ERC20TokenInstance.balanceOf(otherAccount2.address);
+            const otherAccount2Balance = await ERC20TokenInstance.balanceOf(account2.address);
             // Assertions
             expect(ownerBalance).to.equal(999000);
             expect(otherAccount2Balance).to.equal(1000); 
@@ -35,45 +36,45 @@ describe("ERC20Token", function() {
         it("Should fail to transfer tokens to other address on behalf of zero address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount] = await ethers.getSigners();
+            const [owner, account1] = await ethers.getSigners();
             // Attempt to transfer tokens from the zero address
-            await expect(ERC20TokenInstance.transferFrom("0x0000000000000000000000000000000000000000", otherAccount.address, 10)).to.be.revertedWith("ERC20: transfer from the zero address");
+            await expect(ERC20TokenInstance.transferFrom(zeroAddress, account1.address, 10)).to.be.revertedWith("ERC20: transfer from the zero address");
         });
 
         it("Should fail to transfer tokens to zero address on the behalf of owner", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount] = await ethers.getSigners();
-            await expect(ERC20TokenInstance.transferFrom(otherAccount.address,"0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: transfer to the zero address");
+            const [owner, account1] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.transferFrom(account1.address,zeroAddress, 10)).to.be.revertedWith("ERC20: transfer to the zero address");
         });
 
         //  case to verify failure when transferring more tokens than approved
         it("Should fail to transfer more tokens than approved", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
-            // Approve transfer from owner to otherAccount
-            await ERC20TokenInstance.approve(otherAccount.address, 50);
+            const [owner, account1,account2] = await ethers.getSigners();
+            // Approve transfer from owner to account1
+            await ERC20TokenInstance.approve(account1.address, 50);
             // Expecting revert when transferring more than approved
-            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address, otherAccount2.address, 100)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+            await expect(ERC20TokenInstance.connect(account1).transferFrom(owner.address, account2.address, 100)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
         });
 
         it("Should fail to transfer zero tokens on behalf of owner", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
-            // Approve transfer from owner to otherAccount
-            await ERC20TokenInstance.approve(otherAccount.address, 50);
-            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,otherAccount2.address, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+            const [owner, account1,account2] = await ethers.getSigners();
+            // Approve transfer from owner to account1
+            await ERC20TokenInstance.approve(account1.address, 50);
+            await expect(ERC20TokenInstance.connect(account1).transferFrom(owner.address,account2.address, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
         });
 
         it("Should fail to transfer tokens to owner on behalf of owner", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
-            // Approve transfer from owner to otherAccount
-            await ERC20TokenInstance.approve(otherAccount.address, 50);
-            await expect(ERC20TokenInstance.connect(otherAccount).transferFrom(owner.address,owner.address, 10)).to.be.revertedWith("ERC20: cannot transfer to self");
+            const [owner, account1] = await ethers.getSigners();
+            // Approve transfer from owner to account1
+            await ERC20TokenInstance.approve(account1.address, 50);
+            await expect(ERC20TokenInstance.connect(account1).transferFrom(owner.address,owner.address, 10)).to.be.revertedWith("ERC20: cannot transfer to self");
         });
 
     });
@@ -83,12 +84,12 @@ describe("ERC20Token", function() {
         it("Should successfully transfer tokens to other address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount] = await ethers.getSigners();
-            // Transfer tokens from owner to otherAccount
-            await ERC20TokenInstance.transfer(otherAccount.address, 100);
+            const [owner, account1] = await ethers.getSigners();
+            // Transfer tokens from owner to account1
+            await ERC20TokenInstance.transfer(account1.address, 100);
             // Check balances after transfer
             const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
-            const otherAccountBalance = await ERC20TokenInstance.balanceOf(otherAccount.address);
+            const otherAccountBalance = await ERC20TokenInstance.balanceOf(account1.address);
             // Assertions
             expect(ownerBalance).to.equal(999900); 
             expect(otherAccountBalance).to.equal(100); 
@@ -97,9 +98,9 @@ describe("ERC20Token", function() {
         it("Should fail to transfer zero tokens", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner,otherAccount] = await ethers.getSigners();
+            const [owner,account1] = await ethers.getSigners();
             // Expecting revert when transferring zero tokens
-            await expect(ERC20TokenInstance.transfer(otherAccount, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+            await expect(ERC20TokenInstance.transfer(account1, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
         });
     
         it("Should fail to transfer tokens to self", async () => {
@@ -115,7 +116,7 @@ describe("ERC20Token", function() {
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner] = await ethers.getSigners();
             // Expecting revert when transferring to the zero address
-            await expect(ERC20TokenInstance.transfer("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: transfer to the zero address");
+            await expect(ERC20TokenInstance.transfer(zeroAddress, 10)).to.be.revertedWith("ERC20: transfer to the zero address");
         });
     
     });
@@ -124,9 +125,9 @@ describe("ERC20Token", function() {
         it("Should successfully approve tokens to other address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner,otherAccount] = await ethers.getSigners();
-            await ERC20TokenInstance.approve(otherAccount, 50);
-            const allowance = await ERC20TokenInstance.allowance(owner,otherAccount);
+            const [owner,account1] = await ethers.getSigners();
+            await ERC20TokenInstance.approve(account1, 50);
+            const allowance = await ERC20TokenInstance.allowance(owner,account1);
             // Assertions
             expect(allowance).to.equal(50);
         });    
@@ -134,8 +135,8 @@ describe("ERC20Token", function() {
         it("Should fail to approve zero tokens", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner,otherAccount] = await ethers.getSigners();
-            await expect(ERC20TokenInstance.approve(otherAccount, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
+            const [owner,account1] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.approve(account1, 0)).to.be.revertedWith("ERC20: Amount should be greater than 0");
         });
     
         it("Should fail to approve tokens to self", async () => {
@@ -151,14 +152,14 @@ describe("ERC20Token", function() {
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner] = await ethers.getSigners();
             // Attempt to approve to the zero address
-            await expect(ERC20TokenInstance.approve("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("ERC20: approve to the zero address");
+            await expect(ERC20TokenInstance.approve(zeroAddress, 10)).to.be.revertedWith("ERC20: approve to the zero address");
         });
     
         it("Should fail to approve excess tokens", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner,otherAccount] = await ethers.getSigners();
-            await expect(ERC20TokenInstance.approve(otherAccount, 10000000)).to.be.revertedWith("ERC20: cannot approve excess tokens");
+            const [owner,account1] = await ethers.getSigners();
+            await expect(ERC20TokenInstance.approve(account1, 10000000)).to.be.revertedWith("ERC20: cannot approve excess tokens");
         });
     
     });
@@ -193,11 +194,11 @@ describe("ERC20Token", function() {
         it("Should successfully yield balance of other address as 10", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");100
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount] = await ethers.getSigners();
-            // Transfer tokens from owner to otherAccount
-            await ERC20TokenInstance.transfer(otherAccount.address, 10);
+            const [owner, account1] = await ethers.getSigners();
+            // Transfer tokens from owner to account1
+            await ERC20TokenInstance.transfer(account1.address, 10);
             // Check balance after transfer
-            const otherAccountBalance = await ERC20TokenInstance.balanceOf(otherAccount.address);
+            const otherAccountBalance = await ERC20TokenInstance.balanceOf(account1.address);
             // Assertions
             expect(otherAccountBalance).to.equal(10); 
         });
@@ -205,9 +206,9 @@ describe("ERC20Token", function() {
         it("Should successfully yield allowance of other address as 50", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner,otherAccount] = await ethers.getSigners();
-            await ERC20TokenInstance.approve(otherAccount, 50);
-            const allowance = await ERC20TokenInstance.allowance(owner,otherAccount);
+            const [owner,account1] = await ethers.getSigners();
+            await ERC20TokenInstance.approve(account1, 50);
+            const allowance = await ERC20TokenInstance.allowance(owner,account1);
             // Assertions
             expect(allowance).to.equal(50);
         }); 
@@ -220,6 +221,58 @@ describe("ERC20Token", function() {
             expect(decimals).to.equal(14); 
         });
     
+    });
+
+});
+
+describe("Owner(ERC20Token)",function () {
+
+    describe("transferOwnership Function",function () {
+
+        it("Should successfully transfer ownership", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount] = await ethers.getSigners();
+            // Transfer ownership from owner to otherAccount
+            await expect(ERC20TokenInstance.transferOwnership(otherAccount.address)).not.to.be.reverted; 
+        });
+    
+        it("Should fail to transfer ownership by non owner of contract", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
+            // Transfer ownership from owner to otherAccount
+            await expect(ERC20TokenInstance.connect(otherAccount).transferOwnership(otherAccount2.address)).to.be.rejectedWith("Ownable: caller is not the owner");
+        });
+    
+        it("Should fail to transfer ownership to zero address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Attempt to transfer ownership to zero address
+            await expect(ERC20TokenInstance.transferOwnership(zeroAddress)).to.be.revertedWith("Ownable: new owner is the zero address");
+        });
+    
+        it("Should fail to transfer ownership to current owner", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            // Attempt to transfer ownership to the current owner
+            await expect(ERC20TokenInstance.transferOwnership(owner.address)).to.be.revertedWith("Ownable: new owner is already the current owner");
+        });
+
+    });
+
+    describe("getter Functions",function () {
+        it("Should successfully yield caller as owner of the contract", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [owner] = await ethers.getSigners();
+            const Owner = await ERC20TokenInstance.owner();
+            // Assertions
+            expect(Owner).to.equal(owner.address); 
+        });
+
     });
 
 });
