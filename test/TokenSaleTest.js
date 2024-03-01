@@ -58,7 +58,7 @@ describe("TokenSale", function () {
                 await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
             });
 
-            it("Should fail buy tokens when sale is inacitve", async() => {
+            it("Should fail to buy tokens when sale is inactive", async() => {
                 const ERC20Token = await ethers.getContractFactory("ERC20Token");
                 const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
                 [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
