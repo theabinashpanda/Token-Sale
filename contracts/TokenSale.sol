@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "./IERC20Token.sol";
-import "./Ownable.sol";
+import "./Owner.sol";
 import "./ITokenSaleEvents.sol";
 
 /**
@@ -24,16 +24,12 @@ contract TokenSale is Owner,ITokenSaleEvents{
         uint256 timesInvested;
         bool hasInvested;
     }
-
     mapping (address => Investor) investors;
 
     /**
      * @dev Modifier to enforce that the token sale is not active. 
      */
     modifier saleNotActive() {
-        if (block.number >= endBlock) {
-            stopTheSale();
-        }
         require(isSaleActive,"TokenSale: Sale is not active");
         _;
     }
@@ -67,11 +63,10 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to allow investors to buy tokens during the sale
      */
     function buyTokens() public payable saleNotActive validAmountOrNot(msg.value){
+        require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
-        uint256 amount = msg.value / 10**IERC20Token(_ERC20TokenAddress).decimals();
-        uint256 tokensToBuy = amount;
-        require(getTokensPurchased(msg.sender) + tokensToBuy <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Excess ETH invested");
-        // require(totalTokenSold <= MAX_TOKEN_AVAILABLE_FOR_SALE, "TokenSale: No more Token left to buy");
+        uint256 tokensToBuy = msg.value / 10**IERC20Token(_ERC20TokenAddress).decimals();
+        require(getTokensPurchased(msg.sender) + tokensToBuy <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
 
         totalTokenSold += tokensToBuy;
@@ -84,6 +79,31 @@ contract TokenSale is Owner,ITokenSaleEvents{
         if (address(this).balance >= goal)
             stopTheSale();
 
+    }
+
+    /**
+     * @dev Changes the beneficiary address.
+     * @param _newBeneficiary The new beneficiary address.
+     * @return A boolean indicating whether the beneficiary address was successfully changed.
+     */
+    function changeBeneficiary(address _newBeneficiary) public onlyOwner returns(bool){
+        address oldBeneficiary = beneficiary;
+        require(beneficiary != _newBeneficiary,"TokenSale: Cannot change to same address");
+        beneficiary = payable(_newBeneficiary);
+        emit BeneficiaryChanged(oldBeneficiary,beneficiary);
+        return true;
+    }
+
+    /**
+     * @dev Transfers funds to the beneficiary address.
+     * Can only be called by the owner and if the token sale is not active.
+     */
+    function transferFundsToBeneficiary() public onlyOwner{
+        require(!isSaleActive, "TokenSale: Token sale is still active");
+        uint256 amount = address(this).balance;
+        require(amount > 0, "TokenSale: No funds available to withdraw");
+        beneficiary.transfer(amount);
+        emit FundsWithdrawn(amount);
     }
 
     /**
