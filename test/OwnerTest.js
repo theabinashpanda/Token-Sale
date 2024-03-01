@@ -6,7 +6,7 @@ describe("Ownable",function () {
 
     describe("transferOwnership Function",function () {
 
-        it("Successfully transfer ownership", async () => {
+        it("Should successfully transfer ownership", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner, otherAccount] = await ethers.getSigners();
@@ -41,7 +41,7 @@ describe("Ownable",function () {
     });
 
     describe("getter Functions",function () {
-        it("Caller must be the owner of the contract", async () => {
+        it("Should successfully yield caller as owner of the contract", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner] = await ethers.getSigners();

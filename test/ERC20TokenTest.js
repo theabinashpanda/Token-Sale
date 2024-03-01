@@ -6,7 +6,7 @@ describe("ERC20Token", function() {
 
     describe("constructor",function() {
 
-        it("Sucessfully initialize the contract", async () => {
+        it("Should successfully initialize the contract", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             await expect(ERC20Token.deploy("Token", "TKN")).not.to.be.reverted;
         });
@@ -16,7 +16,7 @@ describe("ERC20Token", function() {
     describe("transferFrom Function",function () {
 
         //  case to verify if transferFrom functionalities work
-        it("Sucessfully transfer tokens to other address on behalf of owner", async () => {
+        it("Should successfully transfer tokens to other address on behalf of owner", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
@@ -80,7 +80,7 @@ describe("ERC20Token", function() {
 
     describe("transfer Function",function() {
         
-        it("Sucessfully transfer tokens to other address", async () => {
+        it("Should successfully transfer tokens to other address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner, otherAccount] = await ethers.getSigners();
@@ -121,7 +121,7 @@ describe("ERC20Token", function() {
     });
 
     describe("approve Function",function () {
-        it("Successfully approve tokens to other address", async () => {
+        it("Should successfully approve tokens to other address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner,otherAccount] = await ethers.getSigners();
@@ -165,7 +165,7 @@ describe("ERC20Token", function() {
 
     describe("getter Functions",function () {
 
-        it("Token name should be Token", async () => {
+        it("Should yield token name as Token", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const name = await ERC20TokenInstance.name();
@@ -173,7 +173,7 @@ describe("ERC20Token", function() {
             expect(name).to.equal("Token");
         });
     
-        it("Token symbol should be TKN", async () => {
+        it("Should yield token symbol as TKN", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const symbol = await ERC20TokenInstance.symbol();
@@ -181,7 +181,7 @@ describe("ERC20Token", function() {
             expect(symbol).to.equal("TKN"); 
         });
     
-        it("Total Supply should be 1000000", async () => {
+        it("Should yield total Supply as 1000000", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const totalSupply = await ERC20TokenInstance.totalSupply();
@@ -190,7 +190,7 @@ describe("ERC20Token", function() {
         });
     
         //  case to verify if transfer of tokens is possible
-        it("Balance of other address should be 10", async () => {
+        it("Should yield balance of other address as 10", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");100
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner, otherAccount] = await ethers.getSigners();
@@ -202,7 +202,7 @@ describe("ERC20Token", function() {
             expect(otherAccountBalance).to.equal(10); 
         });
     
-        it("Allowance of other address should be 50", async () => {
+        it("Should yield allowance of other address as 50", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner,otherAccount] = await ethers.getSigners();
@@ -212,7 +212,7 @@ describe("ERC20Token", function() {
             expect(allowance).to.equal(50);
         }); 
     
-        it("Decimals should be 14", async () => {
+        it("Should yield decimals as 14", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const decimals = await ERC20TokenInstance.decimals();
