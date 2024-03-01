@@ -232,17 +232,17 @@ describe("Owner(ERC20Token)",function () {
         it("Should successfully transfer ownership", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount] = await ethers.getSigners();
-            // Transfer ownership from owner to otherAccount
-            await expect(ERC20TokenInstance.transferOwnership(otherAccount.address)).not.to.be.reverted; 
+            const [owner, account1] = await ethers.getSigners();
+            // Transfer ownership from owner to account1
+            await expect(ERC20TokenInstance.transferOwnership(account1.address)).not.to.be.reverted; 
         });
     
         it("Should fail to transfer ownership by non owner of contract", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-            const [owner, otherAccount,otherAccount2] = await ethers.getSigners();
-            // Transfer ownership from owner to otherAccount
-            await expect(ERC20TokenInstance.connect(otherAccount).transferOwnership(otherAccount2.address)).to.be.rejectedWith("Ownable: caller is not the owner");
+            const [owner, account1,account2] = await ethers.getSigners();
+            // Transfer ownership from owner to account1
+            await expect(ERC20TokenInstance.connect(account1).transferOwnership(account2.address)).to.be.rejectedWith("Ownable: caller is not the owner");
         });
     
         it("Should fail to transfer ownership to zero address", async () => {

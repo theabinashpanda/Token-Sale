@@ -1,9 +1,11 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+let zeroAddress = "0x0000000000000000000000000000000000000000";
+
 describe("TokenSale", function () {
 
-    let TokenSaleInstance, tokenOwner, tokenSaleOwner, beneficiary, investor1, investor2,investor3,investor4;
+    let TokenSaleInstance, tokenOwner, tokenSaleOwner, beneficiary, investor1, investor2,investor3,investor4,newBeneficiary;
 
    describe("constructor", function () {
         it("Should successfully initialize TokenSale", async () => {
@@ -50,12 +52,10 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-
                 for (let i = 0; i < 32; i++) {
                     await ethers.provider.send("evm_mine", []);
                 }
-                
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
+                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.2') })).to.be.revertedWith("TokenSale: Sale has been ended");
             });
 
             it("Should fail to buy tokens when sale is inactive", async() => {
@@ -86,7 +86,7 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.6') })).to.be.revertedWith("TokenSale: Excess ETH invested");
+                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.6') })).to.be.revertedWith("TokenSale: Reached max purchase limit");
             });
 
             it("Should fail to buy tokens without approving tokens to TokenSale", async() => {
@@ -134,6 +134,64 @@ describe("TokenSale", function () {
             });
         });
 
+        describe("changeBeneficiary Function", function () {
+            beforeEach(async () => {
+                const ERC20Token = await ethers.getContractFactory("ERC20Token");
+                const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+                [tokenOwner,tokenSaleOwner,investor1, beneficiary,newBeneficiary] = await ethers.getSigners();
+                const TokenSale = await ethers.getContractFactory("TokenSale");
+                TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
+                await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
+            });
+
+            it("Should successfully change beneficiary", async() => {
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).changeBeneficiary(newBeneficiary)).not.to.be.reverted;
+            });
+
+            it("Should fail to change beneficiary by non owner", async() => {
+                await expect(TokenSaleInstance.connect(investor1).changeBeneficiary(newBeneficiary)).to.be.revertedWith("Ownable: caller is not the owner");
+            });
+
+            it("Should fail to change to same beneficiary", async() => {
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).changeBeneficiary(beneficiary)).to.be.revertedWith("TokenSale: Cannot change to same address");
+            });
+
+        });
+
+        describe("transferFundsToBeneficiary", function () {
+            beforeEach(async () => {
+                const ERC20Token = await ethers.getContractFactory("ERC20Token");
+                const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+                [tokenOwner,tokenSaleOwner,investor1, beneficiary] = await ethers.getSigners();
+                const TokenSale = await ethers.getContractFactory("TokenSale");
+                TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
+                await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
+            });
+
+            it("Should successfully transfer funds to beneficiary", async() => {
+                await TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') });
+                await TokenSaleInstance.connect(tokenSaleOwner).stopSale();
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).transferFundsToBeneficiary()).not.to.be.reverted;
+            });
+
+            it("Should fail to transfer funds to beneficiary by non owner", async() => {
+                await TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') });
+                await TokenSaleInstance.connect(tokenSaleOwner).stopSale();
+                await expect(TokenSaleInstance.connect(investor1).transferFundsToBeneficiary()).to.be.revertedWith("Ownable: caller is not the owner");
+            });
+
+            it("Should fail to transfer funds to beneficiary when sale is active", async() => {
+                await TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') });
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).transferFundsToBeneficiary()).to.be.revertedWith("TokenSale: Token sale is still active");
+            });
+
+            it("Should fail to transfer zero funds to beneficiary", async() => {
+                await TokenSaleInstance.connect(tokenSaleOwner).stopSale();
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).transferFundsToBeneficiary()).to.be.revertedWith("TokenSale: No funds available to withdraw");
+            });
+
+        });
+
     });
 
    describe("getter Functions",function () {
@@ -154,8 +212,8 @@ describe("TokenSale", function () {
             expect(await TokenSaleInstance.getGoal()).to.equal(2000000000000000000n);
         });
 
-        it("Should successfully yield end block as 174", async() => {
-            expect(await TokenSaleInstance.getEndBlock()).to.equal(174);
+        it("Should successfully yield end block as 218", async() => {
+            expect(await TokenSaleInstance.getEndBlock()).to.equal(218);
         });
 
         it("Should successfully yield total tokens sold as 5000", async() => {
@@ -217,6 +275,52 @@ describe("TokenSale", function () {
 
         it("Should successfully yield the max tokens a investor can purchase", async() => {
             expect(await TokenSaleInstance.getMaxTokenPerInvestor()).to.equal(5000);
+        });
+
+    });
+
+});
+
+describe("Owner(TokenSale)",function () {
+
+    describe("transferOwnership Function",function () {
+        beforeEach(async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            [tokenOwner,tokenSaleOwner, beneficiary,investor1,investor2] = await ethers.getSigners();
+            const TokenSale = await ethers.getContractFactory("TokenSale");
+            TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
+            await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
+        });
+
+        it("Should successfully transfer ownership", async () => {
+            await expect(TokenSaleInstance.transferOwnership(investor2.address)).not.to.be.reverted; 
+        });
+    
+        it("Should fail to transfer ownership by non owner of contract", async () => {
+            await expect(TokenSaleInstance.connect(investor1).transferOwnership(investor2.address)).to.be.rejectedWith("Ownable: caller is not the owner");
+        });
+    
+        it("Should fail to transfer ownership to zero address", async () => {
+            await expect(TokenSaleInstance.transferOwnership(zeroAddress)).to.be.revertedWith("Ownable: new owner is the zero address");
+        });
+    
+        it("Should fail to transfer ownership to current owner", async () => {
+            await expect(TokenSaleInstance.transferOwnership(tokenSaleOwner.address)).to.be.revertedWith("Ownable: new owner is already the current owner");
+        });
+
+    });
+
+    describe("getter Functions",function () {
+        it("Should successfully yield caller as owner of the contract", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
+            const TokenSale = await ethers.getContractFactory("TokenSale");
+            TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
+            await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
+            const Owner = await TokenSaleInstance.owner();
+            expect(Owner).to.equal(tokenSaleOwner.address); 
         });
 
     });
