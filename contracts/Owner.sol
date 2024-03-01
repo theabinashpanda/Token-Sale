@@ -29,8 +29,8 @@ contract Owner is IOwner{
     function transferOwnership(address newOwner) public onlyOwner returns (bool) {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
         require(newOwner != _owner, "Ownable: new owner is already the current owner");
-        emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
+        emit OwnershipTransferred(_owner, newOwner);
         return true;
     }
 

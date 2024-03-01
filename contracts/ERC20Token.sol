@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {Owner} from "./Ownable.sol";
+import {Owner} from "./Owner.sol";
 import {IERC20Token} from "./IERC20Token.sol";
 
 /**
