@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "./IOwnable.sol";
+import "./IOwner.sol";
 
 /**
  * @title Owner contract to manage ownership functionality
