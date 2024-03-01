@@ -14,6 +14,12 @@ interface IOwner {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @param newOwner The address to transfer ownership to. 
+     */
+    function transferOwnership(address newOwner) external returns (bool) ;
+
+    /**
      * @dev Retrieves the current owner.
      * @return The address of the owner.
      */
