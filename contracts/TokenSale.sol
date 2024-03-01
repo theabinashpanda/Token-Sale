@@ -31,6 +31,9 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Modifier to enforce that the token sale is not active. 
      */
     modifier saleNotActive() {
+        if (block.number >= endBlock) {
+            stopTheSale();
+        }
         require(isSaleActive,"TokenSale: Sale is not active");
         _;
     }
@@ -59,6 +62,36 @@ contract TokenSale is Owner,ITokenSaleEvents{
             endBlock = block.number + 32;
             isSaleActive = true;
         }
+
+    /**
+     * @dev Function to allow investors to buy tokens during the sale
+     */
+    function buyTokens() public payable saleNotActive validAmountOrNot(msg.value){
+        require(msg.sender != owner(),"TokenSale: Owner cannot invest");
+        uint256 amount = msg.value / 10**IERC20Token(_ERC20TokenAddress).decimals();
+        uint256 tokensToBuy = amount;
+        require(getTokensPurchased(msg.sender) + tokensToBuy <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Excess ETH invested");
+        // require(totalTokenSold <= MAX_TOKEN_AVAILABLE_FOR_SALE, "TokenSale: No more Token left to buy");
+        IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
+
+        totalTokenSold += tokensToBuy;
+        investors[msg.sender].fundsInvested += msg.value;
+        investors[msg.sender].tokensPurchased+= tokensToBuy;
+        investors[msg.sender].timesInvested++;
+        investors[msg.sender].hasInvested = true;
+        emit TokensPurchased(msg.sender, tokensToBuy);
+
+        if (address(this).balance >= goal)
+            stopTheSale();
+
+    }
+
+    /**
+     * @dev Function to stop the token sale, can only be called by the contract owner
+     */
+    function stopSale() public onlyOwner saleNotActive {
+        stopTheSale();
+    }
 
     /**
      * @dev Function to get the address of the beneficiary
@@ -175,6 +208,14 @@ contract TokenSale is Owner,ITokenSaleEvents{
      */
     function getMaxTokenPerInvestor() public pure returns(uint256){
         return MAX_TOKEN_PER_INVESTOR;
+    }
+
+    /**
+     * @dev Internal function to stop the token sale
+     */
+    function stopTheSale() internal {
+        isSaleActive = false;
+        emit SaleStopped(address(this).balance);
     }
 
 }
