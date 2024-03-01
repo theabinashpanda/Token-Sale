@@ -136,7 +136,6 @@ describe("TokenSale", function () {
 
     });
 
-
    describe("getter Functions",function () {
         beforeEach(async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
