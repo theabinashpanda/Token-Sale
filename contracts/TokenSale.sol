@@ -211,7 +211,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param amount The amount to be exchanged
      * @return The exchanged value in tokens
      */
-    function getExchangedValue(uint256 amount)public view validAmountOrNot(amount) returns (uint256) {
+    function getExchangedValue(uint256 amount)public pure validAmountOrNot(amount) returns (uint256) {
         return amount * COST_OF_ONE_TOKEN/1 ether;
     }
 
