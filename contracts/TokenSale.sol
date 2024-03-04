@@ -16,6 +16,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     uint256 private endBlock;
     uint256 private constant MAX_TOKEN_AVAILABLE_FOR_SALE = 800000;
     uint256 private constant MAX_TOKEN_PER_INVESTOR = 5000;
+    uint256 private constant COST_OF_ONE_TOKEN =10000;
     uint256 private totalTokenSold;
     bool private isSaleActive;
     struct Investor {
@@ -39,7 +40,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param amount The amount to validate
      */
     modifier validAmountOrNot(uint256 amount){
-        require(amount >= 10 ** IERC20Token(_ERC20TokenAddress).decimals(), "TokenSale: Invalid amount");
+        require(amount >= COST_OF_ONE_TOKEN, "TokenSale: Invalid amount");
         _;
     }
 
@@ -65,7 +66,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     function buyTokens() public payable saleNotActive validAmountOrNot(msg.value){
         require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
-        uint256 tokensToBuy = msg.value / 10**IERC20Token(_ERC20TokenAddress).decimals();
+        uint256 tokensToBuy = msg.value * COST_OF_ONE_TOKEN/ 1 ether;
         require(getTokensPurchased(msg.sender) + tokensToBuy <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
 
@@ -211,7 +212,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The exchanged value in tokens
      */
     function getExchangedValue(uint256 amount)public view validAmountOrNot(amount) returns (uint256) {
-        return amount / 10 ** IERC20Token(_ERC20TokenAddress).decimals();
+        return amount * COST_OF_ONE_TOKEN/1 ether;
     }
 
     /**

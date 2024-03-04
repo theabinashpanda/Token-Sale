@@ -38,8 +38,8 @@ contract ERC20Token is IERC20Token,Owner {
     ) Owner(){
          _name = name_; // Set the name of the token
         _symbol = symbol_; // Set the symbol of the token
-        _totalSupply = 1000000;
-        _balances[msg.sender] = _totalSupply;
+        _totalSupply = 1000000 * 10**decimals();
+        _balances[msg.sender] = _totalSupply ;
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
@@ -51,6 +51,7 @@ contract ERC20Token is IERC20Token,Owner {
      * @return A boolean indicating whether the transfer was successful or not.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+        amount = amount* 10**decimals();
         uint256 currentAllowance = allowance(sender,msg.sender);
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
@@ -68,7 +69,7 @@ contract ERC20Token is IERC20Token,Owner {
      * @return A boolean indicating whether the transfer was successful or not.
      */
     function transfer(address recipient, uint256 amount) public returns (bool) {
-        _transfer(msg.sender, recipient, amount);
+        _transfer(msg.sender, recipient, amount * 10**decimals());
         return true;
     }
 
@@ -78,8 +79,8 @@ contract ERC20Token is IERC20Token,Owner {
      * @param amount The amount of tokens to be approved.
      * @return A boolean indicating whether the approval was successful or not.
      */
-    function approve(address spender, uint256 amount) public notZeroAmount(amount) returns (bool) {
-        _approve(msg.sender, spender, amount);
+    function approve(address spender, uint256 amount) public notZeroAmount(amount * 10 ** decimals()) returns (bool) {
+        _approve(msg.sender, spender, amount * 10**decimals());
         return true;
     }
 
@@ -154,6 +155,6 @@ contract ERC20Token is IERC20Token,Owner {
      * @dev Returns the number of decimal places for the token.
      */
     function decimals() public pure returns (uint8) {
-        return 14;
+        return 18;
     }
 }
