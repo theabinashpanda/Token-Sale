@@ -69,14 +69,14 @@ describe("TokenSale", function () {
                 await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
             });
 
-            it("Should fail to buy tokens with 0 ETH", async() => {
+            it("Should fail to buy tokens with less than 10000 wei", async() => {
                 const ERC20Token = await ethers.getContractFactory("ERC20Token");
                 const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
                 [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0') })).to.be.revertedWith("TokenSale: Invalid amount");
+                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseUnits("0", "wei")})).to.be.revertedWith("TokenSale: Invalid amount");
             });
 
             it("Should fail to buy tokens by investing ETH more than allowed", async() => {
@@ -265,8 +265,8 @@ describe("TokenSale", function () {
             expect(await TokenSaleInstance.getExchangedValue(2000000000000000000n)).to.equal(20000);
         }); 
 
-        it("Should fail to yield the exchange value of 0 amount", async() => {
-            await expect(TokenSaleInstance.getExchangedValue(0)).to.be.revertedWith("TokenSale: Invalid amount");
+        it("Should fail to yield the exchange of 0 value", async() => {
+            await expect(TokenSaleInstance.getExchangedValue(ethers.parseEther('0'))).to.be.revertedWith("TokenSale: Invalid amount");
         }); 
 
         it("Should successfully yield the max tokens available for sale", async() => {

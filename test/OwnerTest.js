@@ -14,35 +14,29 @@ describe("Owner",function () {
     });
 
     describe("transferOwnership Function",function () {
+        let OwnerInstance, owner, account1,account2;
+        beforeEach(async() => {
+            const Owner = await ethers.getContractFactory("Owner");
+            OwnerInstance = await Owner.deploy();
+            [owner, account1,account2] = await ethers.getSigners();
+        });
 
         it("Should successfully transfer ownership", async () => {
-            const Owner = await ethers.getContractFactory("Owner");
-            const OwnerInstance = await Owner.deploy();
-            const [owner, account1] = await ethers.getSigners();
             // Transfer ownership from owner to account1
             await expect(OwnerInstance.transferOwnership(account1.address)).not.to.be.reverted; 
         });
     
         it("Should fail to transfer ownership by non owner of contract", async () => {
-            const Owner = await ethers.getContractFactory("Owner");
-            const OwnerInstance = await Owner.deploy();
-            const [owner, account1,account2] = await ethers.getSigners();
             // Transfer ownership from owner to account1
             await expect(OwnerInstance.connect(account1).transferOwnership(account2.address)).to.be.rejectedWith("Ownable: caller is not the owner");
         });
     
         it("Should fail to transfer ownership to zero address", async () => {
-            const Owner = await ethers.getContractFactory("Owner");
-            const OwnerInstance = await Owner.deploy();
-            const [owner] = await ethers.getSigners();
             // Attempt to transfer ownership to zero address
             await expect(OwnerInstance.transferOwnership(zeroAddress)).to.be.revertedWith("Ownable: new owner is the zero address");
         });
     
         it("Should fail to transfer ownership to current owner", async () => {
-            const Owner = await ethers.getContractFactory("Owner");
-            const OwnerInstance = await Owner.deploy();
-            const [owner] = await ethers.getSigners();
             // Attempt to transfer ownership to the current owner
             await expect(OwnerInstance.transferOwnership(owner.address)).to.be.revertedWith("Ownable: new owner is already the current owner");
         });
