@@ -46,6 +46,7 @@ npx hardhat run --network <network name> scripts/deploy.js
 ```
 
 #### Note: 
+
 - To run in localhost, you have to run the following commmand, in a separate terminal: 
 ```
 npx hardhat node
