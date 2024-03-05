@@ -30,6 +30,16 @@ describe("TokenSale", function () {
                 await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             });
 
+            it("Should fail to buy tokens with 0 value", async() => {
+                const ERC20Token = await ethers.getContractFactory("ERC20Token");
+                const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+                [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
+                const TokenSale = await ethers.getContractFactory("TokenSale");
+                TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
+                await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
+                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseUnits("0", "wei")})).to.be.revertedWith("TokenSale: Invalid amount");
+            });
+
             it("Should successfully stop the sale after reaching the ETH goal", async() => {
                 const ERC20Token = await ethers.getContractFactory("ERC20Token");
                 const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
@@ -67,16 +77,6 @@ describe("TokenSale", function () {
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
                 await TokenSaleInstance.connect(tokenSaleOwner).stopSale();
                 await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
-            });
-
-            it("Should fail to buy tokens with less than 10000 wei", async() => {
-                const ERC20Token = await ethers.getContractFactory("ERC20Token");
-                const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
-                [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
-                const TokenSale = await ethers.getContractFactory("TokenSale");
-                TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
-                await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseUnits("0", "wei")})).to.be.revertedWith("TokenSale: Invalid amount");
             });
 
             it("Should fail to buy tokens by investing ETH more than allowed", async() => {

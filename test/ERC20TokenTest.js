@@ -29,8 +29,8 @@ describe("ERC20Token", function() {
             const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
             const otherAccount2Balance = await ERC20TokenInstance.balanceOf(account2.address);
             // Assertions
-            expect(ownerBalance).to.equal(999000000000000000000000n);
-            expect(otherAccount2Balance).to.equal(1000000000000000000000n); 
+            expect(ownerBalance).to.equal(99999999999999999000n);
+            expect(otherAccount2Balance).to.equal(1000); 
         });
 
         it("Should fail to transfer tokens to other address on behalf of zero address", async () => {
@@ -56,7 +56,7 @@ describe("ERC20Token", function() {
             // Approve transfer from owner to account1
             await ERC20TokenInstance.approve(account1.address, 50);
             // Expecting revert when transferring more than approved
-            await expect(ERC20TokenInstance.connect(account1).transferFrom(owner.address, account2.address, 100)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+            await expect(ERC20TokenInstance.connect(account1).transferFrom(owner.address, account2.address, 100000000000000000n)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
         });
 
         it("Should fail to transfer zero tokens on behalf of owner", async () => {
@@ -91,8 +91,8 @@ describe("ERC20Token", function() {
             const ownerBalance = await ERC20TokenInstance.balanceOf(owner.address);
             const otherAccountBalance = await ERC20TokenInstance.balanceOf(account1.address);
             // Assertions
-            expect(ownerBalance).to.equal(999900000000000000000000n); 
-            expect(otherAccountBalance).to.equal(100000000000000000000n); 
+            expect(ownerBalance).to.equal(99990000000000000000n); 
+            expect(otherAccountBalance).to.equal(10000000000000000n); 
         });
     
         it("Should fail to transfer zero tokens", async () => {
@@ -129,7 +129,7 @@ describe("ERC20Token", function() {
             await ERC20TokenInstance.approve(account1, 50);
             const allowance = await ERC20TokenInstance.allowance(owner,account1);
             // Assertions
-            expect(allowance).to.equal(50000000000000000000n);
+            expect(allowance).to.equal(5000000000000000n);
         });    
     
         it("Should fail to approve zero tokens", async () => {
@@ -182,16 +182,16 @@ describe("ERC20Token", function() {
             expect(symbol).to.equal("TKN"); 
         });
     
-        it("Should successfully yield total Supply as 1000000000000000000000000", async () => {
+        it("Should successfully yield total Supply as 100000000000000000000", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const totalSupply = await ERC20TokenInstance.totalSupply();
             // Assertions
-            expect(totalSupply).to.equal(1000000000000000000000000n);
+            expect(totalSupply).to.equal(100000000000000000000n);
         });
     
         //  case to verify if transfer of tokens is possible
-        it("Should successfully yield balance of other address as 10000000000000000000", async () => {
+        it("Should successfully yield balance of other address as 1000000000000000", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner, account1] = await ethers.getSigners();
@@ -200,25 +200,25 @@ describe("ERC20Token", function() {
             // Check balance after transfer
             const otherAccountBalance = await ERC20TokenInstance.balanceOf(account1.address);
             // Assertions
-            expect(otherAccountBalance).to.equal(10000000000000000000n); 
+            expect(otherAccountBalance).to.equal(1000000000000000); 
         });
     
-        it("Should successfully yield allowance of other address as 50000000000000000000", async () => {
+        it("Should successfully yield allowance of other address as 5000000000000000", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [owner,account1] = await ethers.getSigners();
             await ERC20TokenInstance.approve(account1, 50);
             const allowance = await ERC20TokenInstance.allowance(owner,account1);
             // Assertions
-            expect(allowance).to.equal(50000000000000000000n);
+            expect(allowance).to.equal(5000000000000000);
         }); 
     
-        it("Should successfully yield decimals as 18", async () => {
+        it("Should successfully yield decimals as 14", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const decimals = await ERC20TokenInstance.decimals();
             // Assertions
-            expect(decimals).to.equal(18); 
+            expect(decimals).to.equal(14); 
         });
     
     });
