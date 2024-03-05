@@ -78,7 +78,6 @@ contract TokenSale is Owner,ITokenSaleEvents{
         emit TokensPurchased(msg.sender, tokensToBuy);
         if (address(this).balance >= goal)
             stopTheSale();
-
     }
 
     /**
@@ -255,6 +254,6 @@ contract TokenSale is Owner,ITokenSaleEvents{
     function getExactTokens(uint256 amount) internal view returns(uint256){
         return amount * (COST_OF_ONE_TOKEN* 10 ** IERC20Token(_ERC20TokenAddress).decimals()/1 ether);
     }
-
+    
 }
 
