@@ -52,10 +52,29 @@ npx hardhat run --network <network name> scripts/deploy.js
 npx hardhat node
 ```
 
+## Code Analysis
+
+### Code coverage
+- To install the code coverage, run the following command
+```
+npm i coverage
+```
+- To generate a code coverage report, run the following command:
+```
+npx hardhat coverage
+```
+
 ## Supported Documents
 
+### Deployment
 - ERC20Token contract is deployed at [0xCD440D278dd100c159Dc49d631517A22cDb4F81C](https://sepolia.etherscan.io/address/0xcd440d278dd100c159dc49d631517a22cdb4f81c)
 - TokenSale contract is deployed at [0xc8bbbbc1ff7C6cdbC42b42EC22c4ED2284844cB9](https://sepolia.etherscan.io/address/0xc8bbbbc1ff7c6cdbc42b42ec22c4ed2284844cb9)
 
+### Verification
 - [Verified ERC20Token contract link ](https://sepolia.etherscan.io/address/0xCD440D278dd100c159Dc49d631517A22cDb4F81C#code)
 - [Verfied TokenSale contract Link](https://sepolia.etherscan.io/address/0xc8bbbbc1ff7C6cdbC42b42EC22c4ED2284844cB9#code)
+
+### Code Analysis
+
+#### Code coverage report
+![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/cf4a022922c054ddcad78ade4d612b39/image.png)
