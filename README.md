@@ -52,6 +52,13 @@ npx hardhat run --network <network name> scripts/deploy.js
 npx hardhat node
 ```
 
+## Verification
+
+- To verify the contract, run the following command
+```
+npx hardhat verify --network <network name> <Deployed Address> <Args1> <Args2> ...
+```
+
 ## Code Analysis
 
 ### Code coverage
