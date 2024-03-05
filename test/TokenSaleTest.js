@@ -15,6 +15,22 @@ describe("TokenSale", function () {
             const TokenSale = await ethers.getContractFactory("TokenSale");
             await expect(TokenSale.deploy(await ERC20TokenInstance.getAddress(), beneficiary.address)).not.to.be.reverted;
         }); 
+
+        it("Should fail to initialize TokenSale due to zero token address", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [tokenSaleOwner,beneficiary] = await ethers.getSigners();
+            const TokenSale = await ethers.getContractFactory("TokenSale");
+            await expect(TokenSale.connect(tokenSaleOwner).deploy(zeroAddress, beneficiary.address)).to.be.revertedWith("TokenSale: Token address cannot be zero");
+        }); 
+
+        it("Should fail initialize TokenSale due to zero address beneficiary", async () => {
+            const ERC20Token = await ethers.getContractFactory("ERC20Token");
+            const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
+            const [tokenOwner, tokenSaleOwner, beneficiary] = await ethers.getSigners();
+            const TokenSale = await ethers.getContractFactory("TokenSale");
+            await expect(TokenSale.deploy(await ERC20TokenInstance.getAddress(), zeroAddress)).to.be.revertedWith("TokenSale: Beneficiary address cannot be zero");
+        }); 
    });
 
    describe("Functions",function () {
@@ -212,8 +228,8 @@ describe("TokenSale", function () {
             expect(await TokenSaleInstance.getGoal()).to.equal(2000000000000000000n);
         });
 
-        it("Should successfully yield end block as 218", async() => {
-            expect(await TokenSaleInstance.getEndBlock()).to.equal(218);
+        it("Should successfully yield end block as 222", async() => {
+            expect(await TokenSaleInstance.getEndBlock()).to.equal(222);
         });
 
         it("Should successfully yield total tokens sold as 5000", async() => {
