@@ -51,7 +51,6 @@ contract ERC20Token is IERC20Token,Owner {
      * @return A boolean indicating whether the transfer was successful or not.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
-        amount = amount* 10**decimals();
         uint256 currentAllowance = allowance(sender,msg.sender);
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
@@ -155,6 +154,6 @@ contract ERC20Token is IERC20Token,Owner {
      * @dev Returns the number of decimal places for the token.
      */
     function decimals() public pure returns (uint8) {
-        return 18;
+        return 14;
     }
 }

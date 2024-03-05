@@ -40,7 +40,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param amount The amount to validate
      */
     modifier validAmountOrNot(uint256 amount){
-        require(amount >= COST_OF_ONE_TOKEN, "TokenSale: Invalid amount");
+        require(amount > 0, "TokenSale: Invalid amount");
         _;
     }
 
@@ -66,15 +66,16 @@ contract TokenSale is Owner,ITokenSaleEvents{
     function buyTokens() public payable saleNotActive validAmountOrNot(msg.value){
         require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
-        uint256 tokensToBuy = msg.value * COST_OF_ONE_TOKEN/ 1 ether;
-        require(getTokensPurchased(msg.sender) + tokensToBuy <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
+        uint256 tokensToBuy = getExactTokens(msg.value);
+        require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_ERC20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
 
-        totalTokenSold += tokensToBuy;
+        totalTokenSold += tokensToBuy/10 ** IERC20Token(_ERC20TokenAddress).decimals();
         investors[msg.sender].fundsInvested += msg.value;
         investors[msg.sender].tokensPurchased+= tokensToBuy;
         investors[msg.sender].timesInvested++;
-        investors[msg.sender].hasInvested = true;
+        if (!investors[msg.sender].hasInvested)
+            investors[msg.sender].hasInvested = true;
         emit TokensPurchased(msg.sender, tokensToBuy);
 
         if (address(this).balance >= goal)
@@ -169,7 +170,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The total number of tokens purchased by the account
      */
     function getTokensPurchased(address _account) public view returns (uint256){
-        return investors[_account].tokensPurchased;
+        return investors[_account].tokensPurchased / 10 ** IERC20Token(_ERC20TokenAddress).decimals();
     }
 
     /**
@@ -211,8 +212,8 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param amount The amount to be exchanged
      * @return The exchanged value in tokens
      */
-    function getExchangedValue(uint256 amount)public pure validAmountOrNot(amount) returns (uint256) {
-        return amount * COST_OF_ONE_TOKEN/1 ether;
+    function getExchangedValue(uint256 amount)public view validAmountOrNot(amount) returns (uint256) {
+        return getExactTokens(amount)/ 10 ** IERC20Token(_ERC20TokenAddress).decimals();
     }
 
     /**
@@ -237,6 +238,10 @@ contract TokenSale is Owner,ITokenSaleEvents{
     function stopTheSale() internal {
         isSaleActive = false;
         emit SaleStopped(address(this).balance);
+    }
+
+    function getExactTokens(uint256 amount) internal view returns(uint256){
+        return amount * (COST_OF_ONE_TOKEN* 10 ** IERC20Token(_ERC20TokenAddress).decimals()/1 ether);
     }
 
 }
