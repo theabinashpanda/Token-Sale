@@ -59,9 +59,20 @@ npx hardhat node
 ```
 npm i coverage
 ```
-- To generate a code coverage report, run the following command:
+- To generate a code coverage report, run the following command
 ```
 npx hardhat coverage
+```
+
+### Slither analysis
+- To install slither, run the following command
+```
+pip3 install slither-analyzer
+```
+- Slither require Python 3.8+.
+- To run slither, run the following command:
+```
+slither .
 ```
 
 ## Supported Documents
@@ -77,4 +88,4 @@ npx hardhat coverage
 ### Code Analysis
 
 #### Code coverage report
-![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/cf4a022922c054ddcad78ade4d612b39/image.png)
+![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/4fb28e6fb60c2c1748aa678bf0e7ce50/image.png)
