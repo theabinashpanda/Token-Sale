@@ -15,7 +15,7 @@ contract ERC20Token is IERC20Token,Owner {
     string private _name; // Token name
     string private _symbol; // Token symbol
     uint256 immutable private _totalSupply; // Total token supply
-    mapping(address => uint256) public balances; // Balances of token holders
+    mapping(address => uint256) private balances; // Balances of token holders
     mapping(address => mapping(address => uint256)) private allowances; // Allowances for token spending
 
     /**
