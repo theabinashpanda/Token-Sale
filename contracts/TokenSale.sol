@@ -10,11 +10,11 @@ import "./ITokenSaleEvents.sol";
  * @dev Contract for conducting a token sale
  */
 contract TokenSale is Owner,ITokenSaleEvents{
-    address private _ERC20TokenAddress;
+    address immutable private _erc20TokenAddress;
     address payable private beneficiary;
-    uint256 private goal;
-    uint256 private endBlock;
-    uint256 private constant MAX_TOKEN_AVAILABLE_FOR_SALE = 800000;
+    uint256 immutable private goal;
+    uint256 immutable private endBlock;
+    uint256 private constant MAX_TOKEN_AVAILABLE_FOR_SALE = 800_000;
     uint256 private constant MAX_TOKEN_PER_INVESTOR = 5000;
     uint256 private constant COST_OF_ONE_TOKEN =10000;
     uint256 private totalTokenSold;
@@ -53,7 +53,9 @@ contract TokenSale is Owner,ITokenSaleEvents{
         address _tokenAddress
         , address payable _beneficiary
         ) Owner(){
-            _ERC20TokenAddress = _tokenAddress;
+            require(_tokenAddress != address(0), "TokenSale: Token address cannot be zero");
+            require(_beneficiary != address(0), "TokenSale: Beneficiary address cannot be zero");
+            _erc20TokenAddress = _tokenAddress;
             beneficiary = _beneficiary;
             goal = 2 ether;
             endBlock = block.number + 32;
@@ -63,21 +65,22 @@ contract TokenSale is Owner,ITokenSaleEvents{
     /**
      * @dev Function to allow investors to buy tokens during the sale
      */
-    function buyTokens() public payable saleNotActive validAmountOrNot(msg.value){
+    function buyTokens() public payable saleNotActive validAmountOrNot(msg.value) returns(bool){
         require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
         uint256 tokensToBuy = getExactTokens(msg.value);
-        require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_ERC20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
-        IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
+        require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_erc20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         totalTokenSold += getExchangedValue(msg.value);
         investors[msg.sender].fundsInvested += msg.value;
         investors[msg.sender].tokensPurchased+= tokensToBuy;
         investors[msg.sender].timesInvested++;
         if (!investors[msg.sender].hasInvested)
             investors[msg.sender].hasInvested = true;
-        emit TokensPurchased(msg.sender, tokensToBuy);
         if (address(this).balance >= goal)
             stopTheSale();
+        emit TokensPurchased(msg.sender, tokensToBuy);
+        bool transaction = IERC20Token(_erc20TokenAddress).transferFrom(IOwner(_erc20TokenAddress).owner(),msg.sender, tokensToBuy);
+        return transaction;
     }
 
     /**
@@ -89,13 +92,13 @@ contract TokenSale is Owner,ITokenSaleEvents{
 
     /**
      * @dev Changes the beneficiary address.
-     * @param _newBeneficiary The new beneficiary address.
+     * @param newBeneficiary The new beneficiary address.
      * @return A boolean indicating whether the beneficiary address was successfully changed.
      */
-    function changeBeneficiary(address _newBeneficiary) public onlyOwner returns(bool){
+    function changeBeneficiary(address newBeneficiary) public onlyOwner returns(bool){
         address oldBeneficiary = beneficiary;
-        require(beneficiary != _newBeneficiary,"TokenSale: Cannot change to same address");
-        beneficiary = payable(_newBeneficiary);
+        require(beneficiary != newBeneficiary,"TokenSale: Cannot change to same address");
+        beneficiary = payable(newBeneficiary);
         emit BeneficiaryChanged(oldBeneficiary,beneficiary);
         return true;
     }
@@ -108,8 +111,8 @@ contract TokenSale is Owner,ITokenSaleEvents{
         require(!isSaleActive, "TokenSale: Token sale is still active");
         uint256 amount = address(this).balance;
         require(amount > 0, "TokenSale: No funds available to withdraw");
-        beneficiary.transfer(amount);
         emit FundsWithdrawn(amount);
+        beneficiary.transfer(amount);
         return true;
     }
 
@@ -155,38 +158,38 @@ contract TokenSale is Owner,ITokenSaleEvents{
 
     /**
      * @dev Function to get the amount of funds invested by a specific account
-     * @param _account The address of the account to check
+     * @param accountAddress The address of the account to check
      * @return The amount of funds invested by the account
      */
-    function getFundsInvested(address _account) public view returns(uint256) {
-        return investors[_account].fundsInvested;
+    function getFundsInvested(address accountAddress) public view returns(uint256) {
+        return investors[accountAddress].fundsInvested;
     }
 
     /**
      * @dev Function to get the total number of tokens purchased by a specific account
-     * @param _account The address of the account to check
+     * @param accountAddress The address of the account to check
      * @return The total number of tokens purchased by the account
      */
-    function getTokensPurchased(address _account) public view returns (uint256){
-        return investors[_account].tokensPurchased / 10 ** IERC20Token(_ERC20TokenAddress).decimals();
+    function getTokensPurchased(address accountAddress) public view returns (uint256){
+        return investors[accountAddress].tokensPurchased / 10 ** IERC20Token(_erc20TokenAddress).decimals();
     }
 
     /**
      * @dev Function to get the number of times an account has invested
-     * @param _account The address of the account to check
+     * @param accountAddress The address of the account to check
      * @return The number of times the account has invested
      */
-    function getTimesInvested(address _account) public view returns (uint256){
-        return investors[_account].timesInvested;
+    function getTimesInvested(address accountAddress) public view returns (uint256){
+        return investors[accountAddress].timesInvested;
     }
 
     /**
      * @dev Function to check if an account has invested in the token sale
-     * @param _account The address of the account to check
+     * @param accountAddress The address of the account to check
      * @return A boolean indicating whether the account has invested
      */
-    function isInvestor(address _account) public view returns(bool) {
-        return investors[_account].hasInvested;
+    function isInvestor(address accountAddress) public view returns(bool) {
+        return investors[accountAddress].hasInvested;
     }
 
     /**
@@ -211,7 +214,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The exchanged value in tokens
      */
     function getExchangedValue(uint256 amount)public view validAmountOrNot(amount) returns (uint256) {
-        return getExactTokens(amount)/ 10 ** IERC20Token(_ERC20TokenAddress).decimals();
+        return getExactTokens(amount)/ 10 ** IERC20Token(_erc20TokenAddress).decimals();
     }
 
     /**
@@ -252,7 +255,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The exact number of tokens equivalent to the given amount of ether.
      */
     function getExactTokens(uint256 amount) internal view returns(uint256){
-        return amount * (COST_OF_ONE_TOKEN* 10 ** IERC20Token(_ERC20TokenAddress).decimals()/1 ether);
+        return (amount * COST_OF_ONE_TOKEN * 10 ** IERC20Token(_erc20TokenAddress).decimals())/ 1 ether;
     }
     
 }

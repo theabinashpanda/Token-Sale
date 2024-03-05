@@ -14,9 +14,9 @@ import {IERC20Token} from "./IERC20Token.sol";
 contract ERC20Token is IERC20Token,Owner {
     string private _name; // Token name
     string private _symbol; // Token symbol
-    uint256 private _totalSupply; // Total token supply
-    mapping(address => uint256) public _balances; // Balances of token holders
-    mapping(address => mapping(address => uint256)) private _allowances; // Allowances for token spending
+    uint256 immutable private _totalSupply; // Total token supply
+    mapping(address => uint256) public balances; // Balances of token holders
+    mapping(address => mapping(address => uint256)) private allowances; // Allowances for token spending
 
     /**
     * @dev Modifier to ensure that the specified amount is not zero.
@@ -38,8 +38,8 @@ contract ERC20Token is IERC20Token,Owner {
     ) Owner(){
          _name = name_; // Set the name of the token
         _symbol = symbol_; // Set the symbol of the token
-        _totalSupply = 1000000 * 10**decimals();
-        _balances[msg.sender] = _totalSupply ;
+        _totalSupply = 1_000_000 * 10**decimals();
+        balances[msg.sender] = _totalSupply ;
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
@@ -93,8 +93,8 @@ contract ERC20Token is IERC20Token,Owner {
         require(sender != recipient, "ERC20: cannot transfer to self");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        _balances[sender] -= amount;
-        _balances[recipient] += amount;
+        balances[sender] -= amount;
+        balances[recipient] += amount;
         emit Transfer(sender, recipient, amount);
     }
 
@@ -108,7 +108,7 @@ contract ERC20Token is IERC20Token,Owner {
         require(from != spender, "ERC20: cannot approve self");
         require(spender != address(0), "ERC20: approve to the zero address");
         require(amount <= _totalSupply,"ERC20: cannot approve excess tokens");
-        _allowances[from][spender] = amount;
+        allowances[from][spender] = amount;
         emit Approval(from, spender, amount);
     }
 
@@ -138,7 +138,7 @@ contract ERC20Token is IERC20Token,Owner {
      * @param account The address of the account to query the balance of.
      */
     function balanceOf(address account) public view returns (uint256) {
-        return _balances[account];
+        return balances[account];
     }
 
     /**
@@ -147,7 +147,7 @@ contract ERC20Token is IERC20Token,Owner {
      * @param spender The address of the spender.
      */
     function allowance(address from, address spender) public view returns (uint256) {
-        return _allowances[from][spender];
+        return allowances[from][spender];
     }
 
     /**
