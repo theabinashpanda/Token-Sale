@@ -36,7 +36,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     }
 
     /**
-     * @dev Modifier to validate the amount sent is sufficient
+     * @dev Modifier to validate the amount sent.
      * @param amount The amount to validate
      */
     modifier validAmountOrNot(uint256 amount){
@@ -69,18 +69,23 @@ contract TokenSale is Owner,ITokenSaleEvents{
         uint256 tokensToBuy = getExactTokens(msg.value);
         require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_ERC20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         IERC20Token(_ERC20TokenAddress).transferFrom(IOwner(_ERC20TokenAddress).owner(),msg.sender, tokensToBuy);
-
-        totalTokenSold += tokensToBuy/10 ** IERC20Token(_ERC20TokenAddress).decimals();
+        totalTokenSold += getExchangedValue(msg.value);
         investors[msg.sender].fundsInvested += msg.value;
         investors[msg.sender].tokensPurchased+= tokensToBuy;
         investors[msg.sender].timesInvested++;
         if (!investors[msg.sender].hasInvested)
             investors[msg.sender].hasInvested = true;
         emit TokensPurchased(msg.sender, tokensToBuy);
-
         if (address(this).balance >= goal)
             stopTheSale();
 
+    }
+
+    /**
+     * @dev Function to stop the token sale, can only be called by the contract owner
+     */
+    function stopSale() public onlyOwner saleNotActive {
+        stopTheSale();
     }
 
     /**
@@ -100,19 +105,13 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Transfers funds to the beneficiary address.
      * Can only be called by the owner and if the token sale is not active.
      */
-    function transferFundsToBeneficiary() public onlyOwner{
+    function transferFundsToBeneficiary() public onlyOwner returns(bool){
         require(!isSaleActive, "TokenSale: Token sale is still active");
         uint256 amount = address(this).balance;
         require(amount > 0, "TokenSale: No funds available to withdraw");
         beneficiary.transfer(amount);
         emit FundsWithdrawn(amount);
-    }
-
-    /**
-     * @dev Function to stop the token sale, can only be called by the contract owner
-     */
-    function stopSale() public onlyOwner saleNotActive {
-        stopTheSale();
+        return true;
     }
 
     /**
@@ -233,6 +232,14 @@ contract TokenSale is Owner,ITokenSaleEvents{
     }
 
     /**
+     * @dev Function to get the cost of one token
+     * @return The cost of one token.
+     */
+    function getCostOfOneToken() public pure returns(uint256){
+        return COST_OF_ONE_TOKEN;
+    }
+
+    /**
      * @dev Internal function to stop the token sale
      */
     function stopTheSale() internal {
@@ -240,6 +247,11 @@ contract TokenSale is Owner,ITokenSaleEvents{
         emit SaleStopped(address(this).balance);
     }
 
+    /**
+     * @dev Function to get the exact number of tokens equivalent to the given amount of ether.
+     * @param amount The amount of ether to be converted to tokens.
+     * @return The exact number of tokens equivalent to the given amount of ether.
+     */
     function getExactTokens(uint256 amount) internal view returns(uint256){
         return amount * (COST_OF_ONE_TOKEN* 10 ** IERC20Token(_ERC20TokenAddress).decimals()/1 ether);
     }
