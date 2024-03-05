@@ -89,3 +89,6 @@ slither .
 
 #### Code coverage report
 ![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/4fb28e6fb60c2c1748aa678bf0e7ce50/image.png)
+
+#### Slither Analysis
+![Slither analysis](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/079bbe9921cede4fc9712ce3ede1f3d7/image.png)
