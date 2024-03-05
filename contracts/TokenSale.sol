@@ -79,6 +79,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
         if (address(this).balance >= goal)
             stopTheSale();
         emit TokensPurchased(msg.sender, tokensToBuy);
+        //slither-disable-next-line arbitrary-send-erc20
         bool transaction = IERC20Token(_erc20TokenAddress).transferFrom(IOwner(_erc20TokenAddress).owner(),msg.sender, tokensToBuy);
         return transaction;
     }
