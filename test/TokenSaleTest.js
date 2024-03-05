@@ -277,6 +277,10 @@ describe("TokenSale", function () {
             expect(await TokenSaleInstance.getMaxTokenPerInvestor()).to.equal(5000);
         });
 
+        it("Should successfully yield the cost of one token", async() => {
+            expect(await TokenSaleInstance.getCostOfOneToken()).to.equal(10000);
+        });
+
     });
 
 });
