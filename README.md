@@ -16,16 +16,16 @@ This project aims to implement a token sale for an ERC20 token with specific fun
 ## Getting started
 - Clone the repository by running the following commands.
 
-    ```
-    git clone https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale
-    ```
+```
+git clone https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale
+```
 
 - Setup the hardhat by following link: [Click here](https://hardhat.org/hardhat-runner/docs/getting-started)
 
 - Install ethers by running the following command:
-    ```
-    npm i ethers
-    ```
+```
+npm i ethers
+```
 
 ## Unit Testing
 - Run the following command:
