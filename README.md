@@ -72,7 +72,7 @@ npx hardhat coverage
 
 ### Verification
 - [Verified ERC20Token contract link ](https://sepolia.etherscan.io/address/0xCD440D278dd100c159Dc49d631517A22cDb4F81C#code)
-- [Verfied TokenSale contract Link](https://sepolia.etherscan.io/address/0xc8bbbbc1ff7C6cdbC42b42EC22c4ED2284844cB9#code)
+- [Verified TokenSale contract Link](https://sepolia.etherscan.io/address/0xc8bbbbc1ff7C6cdbC42b42EC22c4ED2284844cB9#code)
 
 ### Code Analysis
 
