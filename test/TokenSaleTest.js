@@ -16,7 +16,7 @@ describe("TokenSale", function () {
             await expect(TokenSale.deploy(await ERC20TokenInstance.getAddress(), beneficiary.address)).not.to.be.reverted;
         }); 
 
-        it("Should fail to initialize TokenSale due to zero token address", async () => {
+        it("Should fail to initialize TokenSale as token address is zero address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [tokenSaleOwner,beneficiary] = await ethers.getSigners();
@@ -24,7 +24,7 @@ describe("TokenSale", function () {
             await expect(TokenSale.connect(tokenSaleOwner).deploy(zeroAddress, beneficiary.address)).to.be.revertedWith("TokenSale: Token address cannot be zero");
         }); 
 
-        it("Should fail initialize TokenSale due to zero address beneficiary", async () => {
+        it("Should fail initialize TokenSale as beneficiary is zero address", async () => {
             const ERC20Token = await ethers.getContractFactory("ERC20Token");
             const ERC20TokenInstance = await ERC20Token.deploy("Token", "TKN");
             const [tokenOwner, tokenSaleOwner, beneficiary] = await ethers.getSigners();
