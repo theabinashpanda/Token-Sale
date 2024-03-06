@@ -16,7 +16,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     uint256 immutable private endBlock;
     uint256 private constant MAX_TOKEN_AVAILABLE_FOR_SALE = 800_000;
     uint256 private constant MAX_TOKEN_PER_INVESTOR = 5000;
-    uint256 private constant COST_OF_ONE_TOKEN =10000;
+    uint256 private constant TOKENS_IN_ONE_ETH =10000;
     uint256 private totalTokenSold;
     bool private isSaleActive;
     struct Investor {
@@ -235,11 +235,11 @@ contract TokenSale is Owner,ITokenSaleEvents{
     }
 
     /**
-     * @dev Function to get the cost of one token
-     * @return The cost of one token.
+     * @dev Function to get the tokens in one ETH
+     * @return The tokens in one ETH.
      */
-    function getCostOfOneToken() public pure returns(uint256){
-        return COST_OF_ONE_TOKEN;
+    function getTokensInOneETH() public pure returns(uint256){
+        return TOKENS_IN_ONE_ETH;
     }
 
     /**
@@ -256,7 +256,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The exact number of tokens equivalent to the given amount of ether.
      */
     function getExactTokens(uint256 amount) internal view returns(uint256){
-        return (amount * COST_OF_ONE_TOKEN * 10 ** IERC20Token(_erc20TokenAddress).decimals())/ 1 ether;
+        return (amount * TOKENS_IN_ONE_ETH * 10 ** IERC20Token(_erc20TokenAddress).decimals())/ 1 ether;
     }
     
 }
