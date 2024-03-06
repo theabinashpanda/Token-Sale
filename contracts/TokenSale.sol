@@ -9,7 +9,7 @@ import "./ITokenSaleEvents.sol";
  * @title TokenSale Implementation
  * @dev Contract for conducting a token sale
  */
-contract TokenSale is Owner,ITokenSaleEvents{
+contract TokenSale is Owner, ITokenSaleEvents {
     address immutable private _erc20TokenAddress;
     address payable private beneficiary;
     uint256 immutable private goal;
@@ -39,7 +39,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Modifier to validate the amount sent.
      * @param amount The amount to validate
      */
-    modifier validAmountOrNot(uint256 amount){
+    modifier validAmountOrNot(uint256 amount) {
         require(amount > 0, "TokenSale: Invalid amount");
         _;
     }
@@ -52,7 +52,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     constructor(
         address _tokenAddress
         , address payable _beneficiary
-        ) Owner(){
+        ) Owner() {
             require(_tokenAddress != address(0), "TokenSale: Token address cannot be zero");
             require(_beneficiary != address(0), "TokenSale: Beneficiary address cannot be zero");
             _erc20TokenAddress = _tokenAddress;
@@ -65,7 +65,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
     /**
      * @dev Function to allow investors to buy tokens during the sale
      */
-    function buyTokens() public payable saleNotActive validAmountOrNot(msg.value) returns(bool){
+    function buyTokens() public payable saleNotActive validAmountOrNot(msg.value) returns(bool) {
         require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
         uint256 tokensToBuy = getExactTokens(msg.value);
@@ -96,7 +96,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param newBeneficiary The new beneficiary address.
      * @return A boolean indicating whether the beneficiary address was successfully changed.
      */
-    function changeBeneficiary(address newBeneficiary) public onlyOwner returns(bool){
+    function changeBeneficiary(address newBeneficiary) public onlyOwner returns(bool) {
         address oldBeneficiary = beneficiary;
         require(beneficiary != newBeneficiary,"TokenSale: Cannot change to same address");
         beneficiary = payable(newBeneficiary);
@@ -108,7 +108,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Transfers funds to the beneficiary address.
      * Can only be called by the owner and if the token sale is not active.
      */
-    function transferFundsToBeneficiary() public onlyOwner returns(bool){
+    function transferFundsToBeneficiary() public onlyOwner returns(bool) {
         require(!isSaleActive, "TokenSale: Token sale is still active");
         uint256 amount = address(this).balance;
         require(amount > 0, "TokenSale: No funds available to withdraw");
@@ -121,7 +121,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the address of the beneficiary
      * @return The address of the beneficiary
      */
-    function getBeneficiary() public view returns (address){
+    function getBeneficiary() public view returns (address) {
         return beneficiary;
     }
 
@@ -129,7 +129,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the goal amount of funds to be raised during the token sale
      * @return The goal amount of funds to be raised
      */
-    function getGoal() public view returns (uint256){
+    function getGoal() public view returns (uint256) {
         return goal;
     }
 
@@ -137,7 +137,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the end block number of the token sale
      * @return The end block number of the token sale
      */
-    function getEndBlock() public view returns (uint256){
+    function getEndBlock() public view returns (uint256) {
         return endBlock;
     }
 
@@ -145,7 +145,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the total number of tokens sold during the token sale
      * @return The total number of tokens sold
      */
-    function getTotalTokenSold() public view returns (uint256){
+    function getTotalTokenSold() public view returns (uint256) {
         return getExchangedValue(totalTokenSold);
     }
 
@@ -153,7 +153,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to check if the token sale is currently active
      * @return A boolean indicating whether the token sale is active
      */
-    function isSaleActiveOrNot() public view returns (bool){
+    function isSaleActiveOrNot() public view returns (bool) {
         return isSaleActive;
     }
 
@@ -171,7 +171,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param accountAddress The address of the account to check
      * @return The total number of tokens purchased by the account
      */
-    function getTokensPurchased(address accountAddress) public view returns (uint256){
+    function getTokensPurchased(address accountAddress) public view returns (uint256) {
         return investors[accountAddress].tokensPurchased / 10 ** IERC20Token(_erc20TokenAddress).decimals();
     }
 
@@ -180,7 +180,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param accountAddress The address of the account to check
      * @return The number of times the account has invested
      */
-    function getTimesInvested(address accountAddress) public view returns (uint256){
+    function getTimesInvested(address accountAddress) public view returns (uint256) {
         return investors[accountAddress].timesInvested;
     }
 
@@ -197,7 +197,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the total amount of raised funds
      * @return The total amount of raised funds
      */
-    function getRaisedFunds() public view returns(uint256){
+    function getRaisedFunds() public view returns(uint256) {
         return address(this).balance;
     }
 
@@ -222,7 +222,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the maximum number of tokens available for sale
      * @return The maximum number of tokens available for sale
      */
-    function getMaxTokenAvailableForSale() public pure returns (uint256){
+    function getMaxTokenAvailableForSale() public pure returns (uint256) {
         return MAX_TOKEN_AVAILABLE_FOR_SALE;
     }
 
@@ -230,7 +230,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the maximum number of tokens that can be purchased per investor
      * @return The maximum number of tokens per investor
      */
-    function getMaxTokenPerInvestor() public pure returns(uint256){
+    function getMaxTokenPerInvestor() public pure returns(uint256) {
         return MAX_TOKEN_PER_INVESTOR;
     }
 
@@ -238,7 +238,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @dev Function to get the tokens in one ETH
      * @return The tokens in one ETH.
      */
-    function getTokensInOneETH() public pure returns(uint256){
+    function getTokensInOneETH() public pure returns(uint256) {
         return TOKENS_IN_ONE_ETH;
     }
 
@@ -255,7 +255,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @param amount The amount of ether to be converted to tokens.
      * @return The exact number of tokens equivalent to the given amount of ether.
      */
-    function getExactTokens(uint256 amount) internal view returns(uint256){
+    function getExactTokens(uint256 amount) internal view returns(uint256) {
         return (amount * TOKENS_IN_ONE_ETH * 10 ** IERC20Token(_erc20TokenAddress).decimals())/ 1 ether;
     }
     
