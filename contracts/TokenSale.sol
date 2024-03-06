@@ -70,7 +70,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
         uint256 tokensToBuy = getExactTokens(msg.value);
         require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_erc20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
-        totalTokenSold += getExchangedValue(msg.value);
+        totalTokenSold += tokensToBuy;
         investors[msg.sender].fundsInvested += msg.value;
         investors[msg.sender].tokensPurchased+= tokensToBuy;
         investors[msg.sender].timesInvested++;
@@ -146,7 +146,7 @@ contract TokenSale is Owner,ITokenSaleEvents{
      * @return The total number of tokens sold
      */
     function getTotalTokenSold() public view returns (uint256){
-        return totalTokenSold;
+        return getExchangedValue(totalTokenSold);
     }
 
     /**
