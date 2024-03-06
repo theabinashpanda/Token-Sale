@@ -43,7 +43,7 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             });
 
             it("Should fail to buy tokens with 0 value", async() => {
@@ -53,7 +53,7 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseUnits("0", "wei")})).to.be.revertedWith("TokenSale: Invalid amount");
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseUnits("0", "wei")})).to.be.revertedWith("TokenSale: Invalid amount");
             });
 
             it("Should successfully stop the sale after reaching the ETH goal", async() => {
@@ -63,10 +63,10 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
-                await expect (TokenSaleInstance.connect(investor2).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
-                await expect (TokenSaleInstance.connect(investor3).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
-                await expect (TokenSaleInstance.connect(investor4).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+                await expect(TokenSaleInstance.connect(investor2).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+                await expect(TokenSaleInstance.connect(investor3).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+                await expect(TokenSaleInstance.connect(investor4).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
                 expect(await TokenSaleInstance.isSaleActiveOrNot()).to.equal(false);
 
             });
@@ -81,7 +81,7 @@ describe("TokenSale", function () {
                 for (let i = 0; i < 32; i++) {
                     await ethers.provider.send("evm_mine", []);
                 }
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.2') })).to.be.revertedWith("TokenSale: Sale has been ended");
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.2') })).to.be.revertedWith("TokenSale: Sale has been ended");
             });
 
             it("Should fail to buy tokens when sale is inactive", async() => {
@@ -92,7 +92,7 @@ describe("TokenSale", function () {
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
                 await TokenSaleInstance.connect(tokenSaleOwner).stopSale();
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Sale is not active");
             });
 
             it("Should fail to buy tokens by investing ETH more than allowed", async() => {
@@ -102,7 +102,7 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.6') })).to.be.revertedWith("TokenSale: Reached max purchase limit");
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.6') })).to.be.revertedWith("TokenSale: Reached max purchase limit");
             });
 
             it("Should fail to buy tokens without approving tokens to TokenSale", async() => {
@@ -111,7 +111,7 @@ describe("TokenSale", function () {
                 [tokenOwner,tokenSaleOwner, beneficiary,investor1] = await ethers.getSigners();
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
-                await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+                await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
             });
 
             it("Should fail to buy tokens by the sale owner", async() => {
@@ -121,7 +121,7 @@ describe("TokenSale", function () {
                 const TokenSale = await ethers.getContractFactory("TokenSale");
                 TokenSaleInstance = await TokenSale.connect(tokenSaleOwner).deploy(await ERC20TokenInstance.getAddress(), beneficiary.address);
                 await ERC20TokenInstance.connect(tokenOwner).approve(await TokenSaleInstance.getAddress(), 1000000);
-                await expect (TokenSaleInstance.connect(tokenSaleOwner).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Owner cannot invest");
+                await expect(TokenSaleInstance.connect(tokenSaleOwner).buyTokens({ value: ethers.parseEther('0.5') })).to.be.revertedWith("TokenSale: Owner cannot invest");
             });
 
         }); 
@@ -233,7 +233,7 @@ describe("TokenSale", function () {
         });
 
         it("Should successfully yield total tokens sold as 5000", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getTotalTokenSold()).to.equal(5000);
         });
 
@@ -247,33 +247,33 @@ describe("TokenSale", function () {
         });
         
         it("Should successfully yield how much investor has invested", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getFundsInvested(investor1.address)).to.equal(500000000000000000n);
         });
 
         it("Should successfully yield how much tokens investor has purchased", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getTokensPurchased(investor1.address)).to.equal(5000);
         });
         
         it("Should successfully yield how much times investor has invested", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.3') })).not.to.be.reverted;
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.2') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.3') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.2') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getTimesInvested(investor1.address)).to.equal(2);
         });
 
         it("Should successfully yield how much times investor has invested", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.isInvestor(investor1.address)).to.equal(true);
         });
 
         it("Should successfully yield how much funds raised as 0.5 ETH", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getRaisedFunds()).to.equal(500000000000000000n);
         });
         
         it("Should successfully yield how much funds remaining to reach the goal as 1.5 ETH", async() => {
-            await expect (TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
+            await expect(TokenSaleInstance.connect(investor1).buyTokens({ value: ethers.parseEther('0.5') })).not.to.be.reverted;
             expect(await TokenSaleInstance.getRemainingFundsToRaise()).to.equal(1500000000000000000n);
         }); 
         
