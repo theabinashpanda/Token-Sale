@@ -95,7 +95,7 @@ slither .
 ### Code Analysis
 
 #### Code coverage report
-![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/4fb28e6fb60c2c1748aa678bf0e7ce50/image.png)
+![Coverage Report](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/e274a16e775d468fcf5e1c1a4e72c080/image.png)
 
 #### Slither Analysis
-![Slither analysis](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/079bbe9921cede4fc9712ce3ede1f3d7/image.png)
+![Slither analysis](https://gitlab.mindfire.co.in/abinash.p/assignment-2-token-sale/uploads/42ec6c0ad8c83cb0ed435f04b13b2e3f/image.png)
