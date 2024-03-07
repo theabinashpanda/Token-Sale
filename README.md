@@ -85,12 +85,18 @@ slither .
 ## Supported Documents
 
 ### Deployment
-- ERC20Token contract is deployed at [0xcdf82b0a207Bc428d61ec7ec88C12348AdD30408](https://sepolia.etherscan.io/address/0xcdf82b0a207Bc428d61ec7ec88C12348AdD30408)
-- TokenSale contract is deployed at [0x118f957fD2a084A6644a62F2134d668ed9D649f7](https://sepolia.etherscan.io/address/0x118f957fD2a084A6644a62F2134d668ed9D649f7)
+- ERC20Token contract is deployed at [0xfDa0E76437f94173aD8be0C313F993c2e0Db504a](https://sepolia.etherscan.io/address/0xfDa0E76437f94173aD8be0C313F993c2e0Db504a)
+- TokenSale contract is deployed at [0xd0D2d9196fD746b80014d4a60791d9Bc32276473](https://sepolia.etherscan.io/address/0xd0D2d9196fD746b80014d4a60791d9Bc32276473)
 
 ### Verification
-- [Verified ERC20Token contract link ](https://sepolia.etherscan.io/address/0xcdf82b0a207Bc428d61ec7ec88C12348AdD30408#code)
-- [Verified TokenSale contract Link](https://sepolia.etherscan.io/address/0x118f957fD2a084A6644a62F2134d668ed9D649f7#code)
+
+#### Block explorer
+- [Verified ERC20Token contract link ](https://sepolia.etherscan.io/address/0xfDa0E76437f94173aD8be0C313F993c2e0Db504a#code)
+- [Verified TokenSale contract link](https://sepolia.etherscan.io/address/0xd0D2d9196fD746b80014d4a60791d9Bc32276473#code)
+
+#### Sourcify
+- [Verified ERC20Token contract link ](https://repo.sourcify.dev/contracts/full_match/11155111/0xfDa0E76437f94173aD8be0C313F993c2e0Db504a/)
+- [Verified TokenSale contract link](https://repo.sourcify.dev/contracts/full_match/11155111/0xd0D2d9196fD746b80014d4a60791d9Bc32276473/)
 
 ### Code Analysis
 
