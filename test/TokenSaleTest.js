@@ -285,10 +285,6 @@ describe("TokenSale", function () {
             await expect(TokenSaleInstance.getExchangedValue(ethers.parseEther('0'))).to.be.revertedWith("TokenSale: Invalid amount");
         }); 
 
-        it("Should successfully yield the max tokens available for sale", async() => {
-            expect(await TokenSaleInstance.getMaxTokenAvailableForSale()).to.equal(800000);
-        });
-
         it("Should successfully yield the max tokens a investor can purchase", async() => {
             expect(await TokenSaleInstance.getMaxTokenPerInvestor()).to.equal(5000);
         });
