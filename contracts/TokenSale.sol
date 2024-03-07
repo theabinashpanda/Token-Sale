@@ -3,18 +3,16 @@ pragma solidity ^0.8.18;
 
 import "./IERC20Token.sol";
 import "./Owner.sol";
-import "./ITokenSaleEvents.sol";
 
 /**
  * @title TokenSale Implementation
  * @dev Contract for conducting a token sale
  */
-contract TokenSale is Owner, ITokenSaleEvents {
-    address immutable private _erc20TokenAddress;
+contract TokenSale is Owner {
+    address immutable private erc20TokenAddress;
     address payable private beneficiary;
     uint256 immutable private goal;
     uint256 immutable private endBlock;
-    uint256 private constant MAX_TOKEN_AVAILABLE_FOR_SALE = 800_000;
     uint256 private constant MAX_TOKEN_PER_INVESTOR = 5000;
     uint256 private constant TOKENS_IN_ONE_ETH =10000;
     uint256 private totalTokenSold;
@@ -23,9 +21,34 @@ contract TokenSale is Owner, ITokenSaleEvents {
         uint256 fundsInvested;
         uint256 tokensPurchased;
         uint256 timesInvested;
-        bool hasInvested;
     }
     mapping (address => Investor) investors;
+
+    /**
+     * @dev Emitted when tokens are purchased
+     * @param buyer The address of the buyer
+     * @param amount The amount of tokens purchased
+     */
+    event TokensPurchased(address indexed buyer, uint256 amount);
+
+    /**
+     * @dev Emitted when the sale is stopped
+     * @param totalFundsRaised The total funds raised during the sale
+     */
+    event SaleStopped(uint256 totalFundsRaised);
+
+    /**
+     * @dev Emitted when funds are withdrawn
+     * @param amount The amount of funds withdrawn
+     */
+    event FundsWithdrawn(uint256 amount);
+
+    /**
+     * @dev Emitted when the beneficiary is changed
+     * @param oldBeneficiary The address of the old beneficiary
+     * @param newBeneficiary The address of the new beneficiary
+     */
+    event BeneficiaryChanged(address indexed oldBeneficiary, address indexed newBeneficiary);
 
     /**
      * @dev Modifier to enforce that the token sale is not active. 
@@ -49,18 +72,15 @@ contract TokenSale is Owner, ITokenSaleEvents {
      * @param _tokenAddress The address of ERC20 token being sold
      * @param _beneficiary The address to receive funds from the token sale
      */
-    constructor(
-        address _tokenAddress
-        , address payable _beneficiary
-        ) Owner() {
-            require(_tokenAddress != address(0), "TokenSale: Token address cannot be zero");
-            require(_beneficiary != address(0), "TokenSale: Beneficiary address cannot be zero");
-            _erc20TokenAddress = _tokenAddress;
-            beneficiary = _beneficiary;
-            goal = 2 ether;
-            endBlock = block.number + 32;
-            isSaleActive = true;
-        }
+    constructor(address _tokenAddress, address payable _beneficiary) Owner() {
+        require(_tokenAddress != address(0), "TokenSale: Token address cannot be zero");
+        require(_beneficiary != address(0), "TokenSale: Beneficiary address cannot be zero");
+        erc20TokenAddress = _tokenAddress;
+        beneficiary = _beneficiary;
+        goal = 2 ether;
+        endBlock = block.number + 32;
+        isSaleActive = true;
+    }
 
     /**
      * @dev Function to allow investors to buy tokens during the sale
@@ -69,18 +89,16 @@ contract TokenSale is Owner, ITokenSaleEvents {
         require(block.number <= endBlock,"TokenSale: Sale has been ended");
         require(msg.sender != owner(),"TokenSale: Owner cannot invest");
         uint256 tokensToBuy = getExactTokens(msg.value);
-        require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(_erc20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
+        require((getTokensPurchased(msg.sender) + tokensToBuy)/10 ** IERC20Token(erc20TokenAddress).decimals() <= MAX_TOKEN_PER_INVESTOR, "TokenSale: Reached max purchase limit");
         totalTokenSold += tokensToBuy;
         investors[msg.sender].fundsInvested += msg.value;
         investors[msg.sender].tokensPurchased+= tokensToBuy;
         investors[msg.sender].timesInvested++;
-        if (!investors[msg.sender].hasInvested)
-            investors[msg.sender].hasInvested = true;
         if (address(this).balance >= goal)
             stopTheSale();
         emit TokensPurchased(msg.sender, tokensToBuy);
         //slither-disable-next-line arbitrary-send-erc20
-        bool transaction = IERC20Token(_erc20TokenAddress).transferFrom(IOwner(_erc20TokenAddress).owner(),msg.sender, tokensToBuy);
+        bool transaction = IERC20Token(erc20TokenAddress).transferFrom(IOwner(erc20TokenAddress).owner(),msg.sender, tokensToBuy);
         return transaction;
     }
 
@@ -172,7 +190,7 @@ contract TokenSale is Owner, ITokenSaleEvents {
      * @return The total number of tokens purchased by the account
      */
     function getTokensPurchased(address accountAddress) public view returns (uint256) {
-        return investors[accountAddress].tokensPurchased / 10 ** IERC20Token(_erc20TokenAddress).decimals();
+        return investors[accountAddress].tokensPurchased / 10 ** IERC20Token(erc20TokenAddress).decimals();
     }
 
     /**
@@ -190,7 +208,7 @@ contract TokenSale is Owner, ITokenSaleEvents {
      * @return A boolean indicating whether the account has invested
      */
     function isInvestor(address accountAddress) public view returns(bool) {
-        return investors[accountAddress].hasInvested;
+        return investors[accountAddress].timesInvested>0;
     }
 
     /**
@@ -215,17 +233,9 @@ contract TokenSale is Owner, ITokenSaleEvents {
      * @return The exchanged value in tokens
      */
     function getExchangedValue(uint256 amount)public view validAmountOrNot(amount) returns (uint256) {
-        return getExactTokens(amount)/ 10 ** IERC20Token(_erc20TokenAddress).decimals();
+        return getExactTokens(amount)/ 10 ** IERC20Token(erc20TokenAddress).decimals();
     }
-
-    /**
-     * @dev Function to get the maximum number of tokens available for sale
-     * @return The maximum number of tokens available for sale
-     */
-    function getMaxTokenAvailableForSale() public pure returns (uint256) {
-        return MAX_TOKEN_AVAILABLE_FOR_SALE;
-    }
-
+    
     /**
      * @dev Function to get the maximum number of tokens that can be purchased per investor
      * @return The maximum number of tokens per investor
@@ -256,7 +266,7 @@ contract TokenSale is Owner, ITokenSaleEvents {
      * @return The exact number of tokens equivalent to the given amount of ether.
      */
     function getExactTokens(uint256 amount) internal view returns(uint256) {
-        return (amount * TOKENS_IN_ONE_ETH * 10 ** IERC20Token(_erc20TokenAddress).decimals())/ 1 ether;
+        return (amount * TOKENS_IN_ONE_ETH * 10 ** IERC20Token(erc20TokenAddress).decimals())/ 1 ether;
     }
     
 }
